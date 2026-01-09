@@ -3,20 +3,16 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Neon Music Pro - Pro Version</title>
+    <title>Neon Music Pro - Local Browse</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    colors: {
-                        "primary": "#1313ec",
-                        "background-dark": "#101022",
-                        "background-light": "#f8fafc",
-                    },
+                    colors: { "primary": "#1313ec", "background-dark": "#101022", "background-light": "#f8fafc" },
                     fontFamily: { "display": ["Spline Sans", "sans-serif"] },
                 },
             },
@@ -24,14 +20,12 @@
     </script>
     <style>
         .ios-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .custom-gradient { background: linear-gradient(180deg, #161633 0%, #101022 100%); }
-        .light-gradient { background: linear-gradient(180deg, #e2e8f0 0%, #f8fafc 100%); }
         .neon-glow { box-shadow: 0 0 20px rgba(19, 19, 236, 0.4); }
-        .hidden-screen { display: none !important; }
+        .hidden-tab { display: none !important; }
         .rotating { animation: rotate 20s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        /* Responsive scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #1313ec; border-radius: 10px; }
     </style>
 </head>
@@ -39,337 +33,312 @@
 
 <audio id="main-audio"></audio>
 
-<div id="add-song-modal" class="hidden-screen fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 ios-blur">
-    <div class="bg-white dark:bg-[#1a1a3a] w-full max-w-sm rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-2xl">
-        <h3 class="text-xl font-bold mb-4 text-center">Add New Track</h3>
+<div id="add-song-modal" class="hidden-tab fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 ios-blur">
+    <div class="bg-white dark:bg-[#1a1a3a] w-full max-w-sm rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold">New Track</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        
         <div class="space-y-4">
-            <input type="text" id="new-title" placeholder="Song Title" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
-            <input type="text" id="new-artist" placeholder="Artist Name" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
-            <input type="text" id="new-img" placeholder="Image URL (Unsplash link)" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
-            <input type="text" id="new-path" placeholder="MP3 Link (Audio URL)" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
+            <div class="p-4 border-2 border-dashed border-primary/30 rounded-2xl bg-primary/5 text-center">
+                <label for="local-file" class="cursor-pointer">
+                    <span class="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
+                    <p class="text-xs mt-2 font-bold text-primary uppercase">Browse Audio File</p>
+                    <input type="file" id="local-file" accept="audio/*" class="hidden" onchange="handleFileSelect(event)">
+                </label>
+                <p id="file-name-display" class="text-[10px] mt-2 text-slate-400 truncate hidden"></p>
+            </div>
+
+            <div class="space-y-2">
+                <input type="text" id="new-title" placeholder="Song Title" class="w-full bg-slate-100 dark:bg-white/5 rounded-xl px-4 py-2.5 outline-none border border-transparent focus:border-primary transition-all">
+                <input type="text" id="new-artist" placeholder="Artist Name" class="w-full bg-slate-100 dark:bg-white/5 rounded-xl px-4 py-2.5 outline-none border border-transparent focus:border-primary transition-all">
+                <input type="text" id="new-img" placeholder="Album Image URL" class="w-full bg-slate-100 dark:bg-white/5 rounded-xl px-4 py-2.5 outline-none border border-transparent focus:border-primary transition-all">
+                <input type="text" id="new-path" placeholder="OR Paste MP3 URL" class="w-full bg-slate-100 dark:bg-white/5 rounded-xl px-4 py-2.5 outline-none border border-transparent focus:border-primary transition-all">
+            </div>
         </div>
-        <div class="flex gap-3 mt-6">
-            <button onclick="closeModal()" class="flex-1 py-2 rounded-lg bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors">Cancel</button>
-            <button onclick="addNewSong()" class="flex-1 py-2 rounded-lg bg-primary text-white hover:opacity-90 font-bold">Add Track</button>
-        </div>
+        
+        <button onclick="addNewSong()" class="w-full mt-6 py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 active:scale-95 transition-transform">Add to Library</button>
     </div>
 </div>
 
 <div class="flex h-screen w-full max-w-[430px] mx-auto flex-col overflow-hidden shadow-2xl border-x border-slate-200 dark:border-slate-800 relative bg-white dark:bg-background-dark">
 
-    <div id="player-screen" class="hidden-screen absolute inset-0 z-50 flex flex-col bg-white dark:bg-background-dark transition-all duration-500">
+    <div id="player-screen" class="hidden-tab absolute inset-0 z-50 flex flex-col bg-white dark:bg-background-dark transition-all duration-300">
         <div class="flex items-center p-6 justify-between">
-            <div onclick="showScreen('library-screen')" class="flex size-10 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 rounded-full">
+            <div onclick="hidePlayer()" class="flex size-10 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 rounded-full">
                 <span class="material-symbols-outlined text-2xl">expand_more</span>
             </div>
-            <div class="text-center">
-                <h2 class="text-xs uppercase tracking-[0.2em] font-bold text-slate-400">Now Playing</h2>
-            </div>
-            <div class="flex size-10 items-center justify-end"><span class="material-symbols-outlined text-2xl">more_vert</span></div>
+            <h2 class="text-[10px] uppercase tracking-widest font-black text-slate-400">Now Playing</h2>
+            <div class="size-10"></div>
         </div>
-
-        <div class="flex-1 flex flex-col items-center justify-center px-8 gap-8">
-            <div id="album-ring" class="relative group">
+        <div class="flex-1 flex flex-col items-center justify-center px-8 gap-10">
+            <div id="album-ring" class="relative">
                 <div class="absolute inset-0 rounded-full bg-primary/20 blur-3xl"></div>
-                <div class="relative size-64 sm:size-72 rounded-full border-4 border-slate-200 dark:border-white/10 p-2 neon-glow overflow-hidden transition-all duration-500">
-                    <div id="player-art" class="w-full h-full rounded-full bg-center bg-cover bg-no-repeat"></div>
+                <div class="relative size-64 rounded-full border-4 border-slate-200 dark:border-white/10 p-2 neon-glow overflow-hidden transition-all duration-500">
+                    <div id="player-art" class="w-full h-full rounded-full bg-center bg-cover bg-slate-200 dark:bg-slate-800 transition-all duration-700"></div>
                 </div>
             </div>
-            <div class="text-center space-y-2">
-                <h1 id="player-title" class="text-2xl sm:text-3xl font-bold leading-tight tracking-tight px-4">Select a song</h1>
-                <p id="player-artist" class="text-primary text-lg font-medium">Neon Artist</p>
+            <div class="text-center">
+                <h1 id="player-title" class="text-2xl font-bold">Select a song</h1>
+                <p id="player-artist" class="text-primary text-lg font-medium">Neon Music</p>
             </div>
         </div>
-
         <div class="px-6 pb-12 space-y-6">
-            <div class="flex items-center gap-3 px-2">
-                <span class="material-symbols-outlined text-slate-400 text-lg">volume_down</span>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" class="flex-1 h-1 bg-slate-200 dark:bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
-                <span class="material-symbols-outlined text-slate-400 text-lg">volume_up</span>
+            <input type="range" id="progress-slider" value="0" class="w-full h-1.5 bg-slate-200 dark:bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
+            <div class="flex justify-between px-2 items-center">
+                <button onclick="prevTrack()" class="active:scale-90 transition-transform"><span class="material-symbols-outlined text-5xl">skip_previous</span></button>
+                <button onclick="togglePlay()" class="size-20 flex items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/40 active:scale-95 transition-transform">
+                    <span id="master-play-icon" class="material-symbols-outlined text-5xl">play_arrow</span>
+                </button>
+                <button onclick="nextTrack()" class="active:scale-90 transition-transform"><span class="material-symbols-outlined text-5xl">skip_next</span></button>
             </div>
-
-            <div class="flex flex-col gap-2">
-                <input type="range" id="progress-slider" value="0" class="w-full h-1.5 bg-slate-200 dark:bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
-                <div class="flex justify-between text-xs text-slate-400">
-                    <p id="current-time">0:00</p><p id="total-duration">0:00</p>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between px-2">
-                <button class="text-slate-400"><span class="material-symbols-outlined text-2xl">shuffle</span></button>
-                <div class="flex items-center gap-6">
-                    <button onclick="prevTrack()" class="dark:text-white"><span class="material-symbols-outlined text-4xl">skip_previous</span></button>
-                    <button onclick="togglePlay()" id="master-play-btn" class="size-16 sm:size-20 flex items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 active:scale-95 transition-transform">
-                        <span id="master-play-icon" class="material-symbols-outlined text-5xl">play_arrow</span>
-                    </button>
-                    <button onclick="nextTrack()" class="dark:text-white"><span class="material-symbols-outlined text-4xl">skip_next</span></button>
-                </div>
-                <button class="text-primary"><span class="material-symbols-outlined text-2xl">repeat</span></button>
+            <div class="flex items-center gap-3 bg-slate-100 dark:bg-white/5 p-3 rounded-2xl">
+                <span class="material-symbols-outlined text-slate-400">volume_down</span>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" class="flex-1 h-1 accent-primary appearance-none bg-slate-300 dark:bg-white/20 rounded-full">
+                <span class="material-symbols-outlined text-slate-400">volume_up</span>
             </div>
         </div>
     </div>
 
-    <div id="library-screen" class="flex flex-1 flex-col overflow-hidden custom-gradient dark:custom-gradient bg-white dark:bg-background-dark">
-        <header class="sticky top-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 ios-blur p-4 justify-between">
-            <div class="flex size-12 items-center justify-start"><span class="material-symbols-outlined">menu</span></div>
-            <h2 class="text-lg font-bold flex-1 text-center">My Library</h2>
-            <button onclick="openModal()" class="flex w-12 items-center justify-end text-primary hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-3xl">add_circle</span>
-            </button>
-        </header>
+    <header class="p-4 flex justify-between items-center bg-white/80 dark:bg-background-dark/80 ios-blur sticky top-0 z-30">
+        <span class="material-symbols-outlined">notes</span>
+        <h2 id="tab-title" class="font-bold text-lg">Home</h2>
+        <button onclick="openModal()" class="text-primary hover:scale-110 active:scale-90 transition-transform"><span class="material-symbols-outlined text-3xl">add_circle</span></button>
+    </header>
 
-        <div class="flex-1 overflow-y-auto pb-44">
-            <div id="home-content" class="flex p-6 flex-col gap-6 items-center">
-                <div class="bg-center bg-cover rounded-xl shadow-2xl w-48 h-48 sm:w-56 sm:h-56 transition-all" style='background-image: url("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500");'></div>
-                <div class="text-center">
-                    <h1 class="text-2xl sm:text-3xl font-bold">Midnight Vibes</h1>
-                    <p id="track-count" class="text-slate-500 dark:text-[#9292c9] text-base">0 songs</p>
-                </div>
-                <button onclick="playSong(0)" class="w-full max-w-xs flex items-center justify-center gap-2 rounded-full h-12 bg-primary text-white font-bold shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined">play_arrow</span>Play All
-                </button>
-            </div>
-
-            <div id="settings-content" class="hidden-screen p-6 space-y-6">
-                <h3 class="text-xl font-bold border-b border-slate-200 dark:border-white/10 pb-2">Settings</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-4 rounded-xl">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary">dark_mode</span>
-                            <span>Dark Mode</span>
-                        </div>
-                        <button onclick="toggleDarkMode()" class="w-12 h-6 bg-primary rounded-full relative transition-all">
-                            <div id="dark-mode-dot" class="absolute top-1 left-1 size-4 bg-white rounded-full transition-all translate-x-6"></div>
-                        </button>
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-4 rounded-xl cursor-pointer" onclick="resetApp()">
-                        <div class="flex items-center gap-3 text-red-500">
-                            <span class="material-symbols-outlined">delete_sweep</span>
-                            <span>Clear All Data</span>
-                        </div>
-                    </div>
+    <main class="flex-1 overflow-y-auto pb-44">
+        <div id="home-tab" class="p-6 space-y-8">
+            <div class="relative w-full h-44 rounded-3xl overflow-hidden shadow-lg group">
+                <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=800" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 flex flex-col justify-end">
+                    <h3 class="text-white text-2xl font-bold">Premium Vibes</h3>
+                    <p class="text-white/70 text-sm">Experience local & cloud music</p>
                 </div>
             </div>
 
-            <div id="tracks-header" class="px-6 py-2 border-b border-slate-200 dark:border-white/5"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Your Tracks</p></div>
+            <div>
+                <h4 class="font-bold mb-4">Quick Play</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div onclick="playSong(0)" class="bg-blue-600/10 p-4 rounded-3xl border border-blue-500/10 cursor-pointer hover:bg-blue-600/20 transition-all">
+                        <div class="size-10 rounded-full bg-blue-500 flex items-center justify-center text-white mb-3 shadow-lg shadow-blue-500/40"><span class="material-symbols-outlined">bolt</span></div>
+                        <p class="font-bold text-sm">Neon Drift</p>
+                        <p class="text-[10px] opacity-50 uppercase tracking-tighter">Retro Synth</p>
+                    </div>
+                    <div onclick="playSong(1)" class="bg-purple-600/10 p-4 rounded-3xl border border-purple-500/10 cursor-pointer hover:bg-purple-600/20 transition-all">
+                        <div class="size-10 rounded-full bg-purple-500 flex items-center justify-center text-white mb-3 shadow-lg shadow-purple-500/40"><span class="material-symbols-outlined">Waves</span></div>
+                        <p class="font-bold text-sm">Cyber Wave</p>
+                        <p class="text-[10px] opacity-50 uppercase tracking-tighter">Electro</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="library-tab" class="hidden-tab">
+            <div class="px-6 py-4 flex justify-between items-center bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
+                <p id="track-count" class="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">0 Songs</p>
+                <span class="material-symbols-outlined text-slate-400">sort</span>
+            </div>
             <div id="track-list-container" class="flex flex-col"></div>
         </div>
 
-        <footer class="absolute bottom-0 w-full bg-white/95 dark:bg-background-dark/95 ios-blur border-t border-slate-200 dark:border-white/5 pt-2 pb-6 px-4 z-40">
-            <div onclick="showScreen('player-screen')" class="flex items-center justify-between mb-4 cursor-pointer group">
+        <div id="settings-tab" class="hidden-tab p-6 space-y-4">
+            <div class="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-4 rounded-2xl">
                 <div class="flex items-center gap-3">
-                    <div id="mini-album-art" class="size-10 rounded-full bg-center bg-cover border border-slate-200 dark:border-white/10"></div>
-                    <div class="max-w-[150px]">
-                        <p id="mini-track-title" class="text-sm font-bold line-clamp-1">Select a song</p>
-                        <p id="mini-track-artist" class="text-primary text-[10px] font-medium">Neon Music</p>
-                    </div>
+                    <span class="material-symbols-outlined text-primary">dark_mode</span>
+                    <span class="font-bold text-sm">Dark Mode</span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="event.stopPropagation(); togglePlay();" class="p-2 active:scale-90 transition-transform"><span id="mini-play-icon" class="material-symbols-outlined">play_arrow</span></button>
-                    <button onclick="event.stopPropagation(); nextTrack();" class="p-2"><span class="material-symbols-outlined">skip_next</span></button>
-                </div>
+                <button onclick="toggleDarkMode()" class="w-12 h-6 bg-primary rounded-full relative transition-all">
+                    <div id="dark-mode-dot" class="absolute top-1 left-1 size-4 bg-white rounded-full transition-all translate-x-6"></div>
+                </button>
             </div>
-            <div class="w-full bg-slate-200 dark:bg-white/10 h-1 rounded-full overflow-hidden mb-4">
-                <div id="mini-progress-bar" class="bg-primary h-full w-0"></div>
-            </div>
+            <button onclick="resetApp()" class="w-full flex items-center gap-3 bg-red-500/10 text-red-500 p-4 rounded-2xl hover:bg-red-500/20 transition-all">
+                <span class="material-symbols-outlined">delete_forever</span>
+                <span class="font-bold text-sm uppercase tracking-wider">Clear Library</span>
+            </button>
+        </div>
+    </main>
 
-            <div class="flex justify-around items-center pt-2 border-t border-slate-200 dark:border-white/5">
-                <button onclick="showLibraryTab('home')" id="home-btn" class="flex flex-col items-center gap-1 text-primary"><span class="material-symbols-outlined">home</span><span class="text-[10px]">Home</span></button>
-                <button onclick="showLibraryTab('home')" class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">library_music</span><span class="text-[10px]">Library</span></button>
-                <button class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">explore</span><span class="text-[10px]">Discover</span></button>
-                <button onclick="showLibraryTab('settings')" id="settings-btn" class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">settings</span><span class="text-[10px]">Settings</span></button>
+    <footer class="absolute bottom-0 w-full bg-white/95 dark:bg-background-dark/95 ios-blur border-t border-slate-200 dark:border-white/5 pt-0 pb-6 z-40">
+        <div class="w-full h-[2px] bg-slate-200 dark:bg-white/10 mb-2">
+            <div id="mini-progress-bar" class="h-full bg-primary shadow-[0_0_8px_rgba(19,19,236,0.6)] w-0 transition-all duration-300"></div>
+        </div>
+
+        <div onclick="showPlayer()" class="px-4 mb-4 flex items-center justify-between cursor-pointer group">
+            <div class="flex items-center gap-3">
+                <div id="mini-art" class="size-12 rounded-full bg-cover bg-center border border-primary/20 bg-slate-200 dark:bg-slate-800"></div>
+                <div>
+                    <p id="mini-title" class="text-sm font-bold truncate w-32">Select a track</p>
+                    <p id="mini-artist" class="text-primary text-[10px] font-black uppercase">NEON MUSIC</p>
+                </div>
             </div>
-        </footer>
-    </div>
+            <div class="flex items-center gap-4">
+                <button onclick="event.stopPropagation(); togglePlay();" class="size-10 flex items-center justify-center rounded-full bg-primary text-white shadow-lg active:scale-90 transition-transform">
+                    <span id="mini-play-icon" class="material-symbols-outlined">play_arrow</span>
+                </button>
+                <button onclick="event.stopPropagation(); nextTrack();" class="text-slate-400"><span class="material-symbols-outlined">skip_next</span></button>
+            </div>
+        </div>
+
+        <div class="flex justify-around items-center pt-2">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-primary">
+                <span class="material-symbols-outlined">home</span><span class="text-[10px] font-bold">Home</span>
+            </button>
+            <button onclick="switchTab('library')" id="nav-library" class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined">library_music</span><span class="text-[10px] font-bold">Library</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined">settings</span><span class="text-[10px] font-bold">Settings</span>
+            </button>
+        </div>
+    </footer>
 </div>
 
 <script>
-    const STORAGE_KEY = 'NEON_MUSIC_PRO_DATA';
-    const defaultPlaylist = [
-        { title: "Midnight Protocol", artist: "Neon Architect", duration: "3:45", img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { title: "Starlight Echo", artist: "Muse Digital", duration: "3:22", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+    const DEFAULT_IMG = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500";
+    
+    // 5 DUMMY SONGS
+    const dummySongs = [
+        { title: "Midnight City", artist: "M83", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500" },
+        { title: "Nightcall", artist: "Kavinsky", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", img: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=500" },
+        { title: "Starboy", artist: "The Weeknd", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", img: "https://images.unsplash.com/photo-1619983081563-430f63602796?w=500" },
+        { title: "Blinding Lights", artist: "Weeknd", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=500" },
+        { title: "Synthwave Dreams", artist: "Retro", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=500" }
     ];
 
-    let playlist = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultPlaylist;
+    let playlist = JSON.parse(localStorage.getItem('NEON_MUSIC_DATA')) || dummySongs;
     let currentTrackIndex = 0;
     let isPlaying = false;
+    let localAudioPath = "";
     const audio = document.getElementById('main-audio');
 
-    // UI ELEMENTS
-    const htmlRoot = document.getElementById('html-root');
-    const darkModeDot = document.getElementById('dark-mode-dot');
-
-    function saveToStorage() { localStorage.setItem(STORAGE_KEY, JSON.stringify(playlist)); }
-
-    // THEME TOGGLE
-    function toggleDarkMode() {
-        htmlRoot.classList.toggle('dark');
-        const isDark = htmlRoot.classList.contains('dark');
-        darkModeDot.style.transform = isDark ? 'translateX(1.5rem)' : 'translateX(0)';
-    }
-
-    // TAB NAVIGATION
-    function showLibraryTab(tab) {
-        const homeContent = document.getElementById('home-content');
-        const settingsContent = document.getElementById('settings-content');
-        const tracksHeader = document.getElementById('tracks-header');
-        const trackList = document.getElementById('track-list-container');
+    // TABS
+    function switchTab(tabId) {
+        document.querySelectorAll('main > div').forEach(tab => tab.classList.add('hidden-tab'));
+        document.querySelectorAll('footer button').forEach(btn => btn.classList.replace('text-primary', 'text-slate-400'));
         
-        const homeBtn = document.getElementById('home-btn');
-        const settingsBtn = document.getElementById('settings-btn');
-
-        if(tab === 'settings') {
-            homeContent.classList.add('hidden-screen');
-            tracksHeader.classList.add('hidden-screen');
-            trackList.classList.add('hidden-screen');
-            settingsContent.classList.remove('hidden-screen');
-            settingsBtn.classList.replace('text-slate-400', 'text-primary');
-            homeBtn.classList.replace('text-primary', 'text-slate-400');
-        } else {
-            homeContent.classList.remove('hidden-screen');
-            tracksHeader.classList.remove('hidden-screen');
-            trackList.classList.remove('hidden-screen');
-            settingsContent.classList.add('hidden-screen');
-            homeBtn.classList.replace('text-slate-400', 'text-primary');
-            settingsBtn.classList.replace('text-primary', 'text-slate-400');
-        }
+        document.getElementById(tabId + '-tab').classList.remove('hidden-tab');
+        document.getElementById('nav-' + tabId).classList.replace('text-slate-400', 'text-primary');
+        document.getElementById('tab-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
     }
 
-    function resetApp() {
-        if(confirm("Are you sure? All songs will be deleted!")) {
-            localStorage.clear();
-            location.reload();
+    // LOCAL FILE SELECTION
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            localAudioPath = URL.createObjectURL(file);
+            const fileName = document.getElementById('file-name-display');
+            fileName.innerText = "Selected: " + file.name;
+            fileName.classList.remove('hidden');
+            document.getElementById('new-title').value = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('new-artist').value = "Local Audio";
         }
     }
-
-    // MODAL
-    function openModal() { document.getElementById('add-song-modal').classList.remove('hidden-screen'); }
-    function closeModal() { document.getElementById('add-song-modal').classList.add('hidden-screen'); }
 
     function addNewSong() {
         const title = document.getElementById('new-title').value;
         const artist = document.getElementById('new-artist').value;
-        const img = document.getElementById('new-img').value || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500";
-        const path = document.getElementById('new-path').value;
-
-        if(title && artist && path) {
-            playlist.push({ title, artist, duration: "0:00", img, path });
-            saveToStorage();
-            initLibrary();
+        const img = document.getElementById('new-img').value || DEFAULT_IMG;
+        const path = localAudioPath || document.getElementById('new-path').value;
+        
+        if(title && path) {
+            playlist.push({ title, artist: artist || 'Unknown Artist', path, img });
+            localStorage.setItem('NEON_MUSIC_DATA', JSON.stringify(playlist));
+            renderLibrary();
             closeModal();
-            // Clear inputs
+            // Reset
             ['new-title', 'new-artist', 'new-img', 'new-path'].forEach(id => document.getElementById(id).value = '');
-        } else { alert("Please fill Song Title, Artist and MP3 URL"); }
+            document.getElementById('file-name-display').classList.add('hidden');
+            localAudioPath = "";
+        } else { alert("Please select a file or enter a URL"); }
     }
 
-    function deleteSong(index) {
-        if(confirm("Delete this song?")) {
-            playlist.splice(index, 1);
-            saveToStorage();
-            initLibrary();
-        }
-    }
-
-    function initLibrary() {
+    function renderLibrary() {
         const container = document.getElementById('track-list-container');
-        document.getElementById('track-count').innerText = `${playlist.length} songs`;
-        container.innerHTML = playlist.map((song, index) => `
-            <div onclick="playSong(${index})" class="flex items-center gap-4 px-6 min-h-[80px] py-2 justify-between hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group">
-                <div class="flex items-center gap-4 overflow-hidden">
-                    <div class="relative bg-center bg-cover rounded-lg size-14 shrink-0 shadow-md" style='background-image: url("${song.img}");'>
-                        <div class="absolute inset-0 bg-primary/40 flex items-center justify-center rounded-lg ${currentTrackIndex === index && isPlaying ? 'flex' : 'hidden'}">
-                            <span class="material-symbols-outlined text-white">volume_up</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col overflow-hidden">
-                        <p class="text-base font-semibold truncate ${currentTrackIndex === index ? 'text-primary' : ''}">${song.title}</p>
-                        <p class="text-slate-500 dark:text-[#9292c9] text-sm truncate">${song.artist}</p>
-                    </div>
+        document.getElementById('track-count').innerText = `${playlist.length} Songs`;
+        container.innerHTML = playlist.map((song, i) => `
+            <div onclick="playSong(${i})" class="flex items-center gap-4 p-4 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer border-b border-slate-50 dark:border-white/5 transition-all">
+                <div class="size-12 rounded-xl bg-slate-200 dark:bg-slate-800 shrink-0 bg-cover bg-center shadow-md" style="background-image:url('${song.img}')"></div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="font-bold truncate ${currentTrackIndex === i ? 'text-primary' : ''}">${song.title}</p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${song.artist}</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="event.stopPropagation(); deleteSong(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity p-2">
-                        <span class="material-symbols-outlined text-xl">delete</span>
-                    </button>
-                    <p class="text-slate-400 text-sm font-medium">${song.duration}</p>
-                </div>
+                <span class="material-symbols-outlined ${currentTrackIndex === i && isPlaying ? 'text-primary' : 'text-slate-300'}">
+                    ${currentTrackIndex === i && isPlaying ? 'equalizer' : 'play_circle'}
+                </span>
             </div>
         `).join('');
     }
 
     function playSong(index) {
-        if(playlist.length === 0) return;
-        if (currentTrackIndex === index && audio.src) {
-            togglePlay();
-        } else {
-            currentTrackIndex = index;
-            const song = playlist[index];
-            audio.src = song.path;
-            updateUI(song);
-            togglePlay(true);
-        }
-        initLibrary();
-    }
-
-    function updateUI(song) {
+        if(!playlist[index]) return;
+        currentTrackIndex = index;
+        const song = playlist[index];
+        audio.src = song.path;
+        
+        // Update UI
         document.getElementById('player-title').innerText = song.title;
         document.getElementById('player-artist').innerText = song.artist;
         document.getElementById('player-art').style.backgroundImage = `url('${song.img}')`;
-        document.getElementById('mini-track-title').innerText = song.title;
-        document.getElementById('mini-track-artist').innerText = song.artist;
-        document.getElementById('mini-album-art').style.backgroundImage = `url('${song.img}')`;
+        document.getElementById('mini-title').innerText = song.title;
+        document.getElementById('mini-artist').innerText = song.artist;
+        document.getElementById('mini-art').style.backgroundImage = `url('${song.img}')`;
+        
+        togglePlay(true);
+        renderLibrary();
     }
 
     function togglePlay(forcePlay = false) {
         const mIcon = document.getElementById('master-play-icon');
         const miniIcon = document.getElementById('mini-play-icon');
         const ring = document.getElementById('album-ring');
-        
+
         if (forcePlay || audio.paused) {
-            audio.play().catch(() => console.log("Waiting for user interaction")); 
+            audio.play().catch(e => console.log("Error playing"));
             isPlaying = true;
             mIcon.innerText = 'pause'; miniIcon.innerText = 'pause';
             ring.classList.add('rotating');
         } else {
-            audio.pause(); isPlaying = false;
+            audio.pause();
+            isPlaying = false;
             mIcon.innerText = 'play_arrow'; miniIcon.innerText = 'play_arrow';
             ring.classList.remove('rotating');
         }
-        initLibrary();
+        renderLibrary();
     }
 
     function nextTrack() { if(playlist.length > 0) playSong((currentTrackIndex + 1) % playlist.length); }
     function prevTrack() { if(playlist.length > 0) playSong((currentTrackIndex - 1 + playlist.length) % playlist.length); }
 
-    function showScreen(screenId) {
-        document.getElementById('player-screen').classList.toggle('hidden-screen', screenId !== 'player-screen');
-    }
-
-    // VOLUME & PROGRESS
-    document.getElementById('volume-slider').oninput = (e) => audio.volume = e.target.value;
-    document.getElementById('progress-slider').oninput = (e) => audio.currentTime = (e.target.value / 100) * audio.duration;
-
     audio.ontimeupdate = () => {
         const p = (audio.currentTime / audio.duration) * 100 || 0;
-        document.getElementById('mini-progress-bar').style.width = `${p}%`;
         document.getElementById('progress-slider').value = p;
-        
-        let cm = Math.floor(audio.currentTime / 60), cs = Math.floor(audio.currentTime % 60);
-        document.getElementById("current-time").innerText = `${cm}:${cs < 10 ? '0'+cs : cs}`;
-    };
-
-    audio.onloadedmetadata = () => {
-        let dm = Math.floor(audio.duration / 60), ds = Math.floor(audio.duration % 60);
-        const durationText = `${dm}:${ds < 10 ? '0'+ds : ds}`;
-        document.getElementById("total-duration").innerText = durationText;
-        playlist[currentTrackIndex].duration = durationText; // Update duration in list
+        document.getElementById('mini-progress-bar').style.width = p + '%';
     };
 
     audio.onended = nextTrack;
+    document.getElementById('volume-slider').oninput = (e) => audio.volume = e.target.value;
+    document.getElementById('progress-slider').oninput = (e) => audio.currentTime = (e.target.value / 100) * audio.duration;
 
-    // INIT
-    initLibrary();
-    if(playlist.length > 0) updateUI(playlist[0]);
-    audio.volume = 0.7;
+    function toggleDarkMode() {
+        document.getElementById('html-root').classList.toggle('dark');
+        const isDark = document.getElementById('html-root').classList.contains('dark');
+        document.getElementById('dark-mode-dot').style.transform = isDark ? 'translateX(1.5rem)' : 'translateX(0)';
+    }
+
+    function resetApp() { if(confirm("Clear library?")) { localStorage.clear(); location.reload(); } }
+    function openModal() { document.getElementById('add-song-modal').classList.remove('hidden-tab'); }
+    function closeModal() { document.getElementById('add-song-modal').classList.add('hidden-tab'); }
+    function showPlayer() { document.getElementById('player-screen').classList.remove('hidden-tab'); }
+    function hidePlayer() { document.getElementById('player-screen').classList.add('hidden-tab'); }
+
+    // Init
+    renderLibrary();
+    if(playlist.length > 0) {
+        const s = playlist[0];
+        document.getElementById('player-art').style.backgroundImage = `url('${s.img}')`;
+        document.getElementById('mini-art').style.backgroundImage = `url('${s.img}')`;
+    }
 </script>
 </body>
 </html>
