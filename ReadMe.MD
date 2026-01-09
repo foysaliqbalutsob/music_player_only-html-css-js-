@@ -14,7 +14,7 @@ A sleek, responsive, and neon-themed music player built with **HTML5, Tailwind C
 - **Local Storage**: Your custom playlist is saved locally in your browser.
 
 ## 🚀 Live Demo
-You can view the live project here: [আপনার GitHub Pages লিঙ্ক এখানে দিন]
+You can view the live project here: [https://foysaliqbalutsob.github.io/music_player_only-html-css-js-/]
 
 ## 🛠️ Built With
 
