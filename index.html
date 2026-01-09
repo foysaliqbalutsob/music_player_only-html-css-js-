@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html id="html-root" class="dark" lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Neon Music Pro - Final</title>
+    <title>Neon Music Pro - Pro Version</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -15,6 +15,7 @@
                     colors: {
                         "primary": "#1313ec",
                         "background-dark": "#101022",
+                        "background-light": "#f8fafc",
                     },
                     fontFamily: { "display": ["Spline Sans", "sans-serif"] },
                 },
@@ -24,131 +25,166 @@
     <style>
         .ios-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         .custom-gradient { background: linear-gradient(180deg, #161633 0%, #101022 100%); }
+        .light-gradient { background: linear-gradient(180deg, #e2e8f0 0%, #f8fafc 100%); }
         .neon-glow { box-shadow: 0 0 20px rgba(19, 19, 236, 0.4); }
         .hidden-screen { display: none !important; }
         .rotating { animation: rotate 20s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Responsive scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1313ec; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-background-dark text-white font-display overflow-hidden">
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden transition-colors duration-300">
 
 <audio id="main-audio"></audio>
 
 <div id="add-song-modal" class="hidden-screen fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 ios-blur">
-    <div class="bg-[#1a1a3a] w-full max-w-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
+    <div class="bg-white dark:bg-[#1a1a3a] w-full max-w-sm rounded-2xl p-6 border border-slate-200 dark:border-white/10 shadow-2xl">
         <h3 class="text-xl font-bold mb-4 text-center">Add New Track</h3>
         <div class="space-y-4">
-            <input type="text" id="new-title" placeholder="Song Title" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm">
-            <input type="text" id="new-artist" placeholder="Artist Name" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm">
-            <input type="text" id="new-img" placeholder="Image URL" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm">
-            <input type="text" id="new-path" placeholder="MP3 Link (Audio URL)" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm">
+            <input type="text" id="new-title" placeholder="Song Title" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
+            <input type="text" id="new-artist" placeholder="Artist Name" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
+            <input type="text" id="new-img" placeholder="Image URL (Unsplash link)" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
+            <input type="text" id="new-path" placeholder="MP3 Link (Audio URL)" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-primary text-sm dark:text-white">
         </div>
         <div class="flex gap-3 mt-6">
-            <button onclick="closeModal()" class="flex-1 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">Cancel</button>
-            <button onclick="addNewSong()" class="flex-1 py-2 rounded-lg bg-primary hover:opacity-90 font-bold">Add Track</button>
+            <button onclick="closeModal()" class="flex-1 py-2 rounded-lg bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors">Cancel</button>
+            <button onclick="addNewSong()" class="flex-1 py-2 rounded-lg bg-primary text-white hover:opacity-90 font-bold">Add Track</button>
         </div>
     </div>
 </div>
 
-<div id="player-screen" class="hidden-screen relative flex h-screen w-full max-w-[430px] mx-auto flex-col overflow-hidden shadow-2xl border-x border-slate-800 transition-all duration-500">
-    <div class="flex items-center p-6 justify-between">
-        <div onclick="showScreen('library-screen')" class="flex size-10 items-center justify-center cursor-pointer hover:bg-white/10 rounded-full">
-            <span class="material-symbols-outlined text-2xl">expand_more</span>
-        </div>
-        <div class="text-center">
-            <h2 class="text-xs uppercase tracking-[0.2em] font-bold text-slate-400">Now Playing</h2>
-            <p class="text-[10px] font-medium text-primary">Cyberwave Radio</p>
-        </div>
-        <div class="flex size-10 items-center justify-end"><span class="material-symbols-outlined text-2xl">more_vert</span></div>
-    </div>
+<div class="flex h-screen w-full max-w-[430px] mx-auto flex-col overflow-hidden shadow-2xl border-x border-slate-200 dark:border-slate-800 relative bg-white dark:bg-background-dark">
 
-    <div class="flex-1 flex flex-col items-center justify-center px-8 gap-8">
-        <div id="album-ring" class="relative group">
-            <div class="absolute inset-0 rounded-full bg-primary/20 blur-3xl"></div>
-            <div class="relative size-72 rounded-full border-4 border-white/10 p-2 neon-glow overflow-hidden">
-                <div id="player-art" class="w-full h-full rounded-full bg-center bg-cover bg-no-repeat"></div>
+    <div id="player-screen" class="hidden-screen absolute inset-0 z-50 flex flex-col bg-white dark:bg-background-dark transition-all duration-500">
+        <div class="flex items-center p-6 justify-between">
+            <div onclick="showScreen('library-screen')" class="flex size-10 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 rounded-full">
+                <span class="material-symbols-outlined text-2xl">expand_more</span>
             </div>
-        </div>
-        <div class="text-center space-y-2">
-            <h1 id="player-title" class="text-3xl font-bold leading-tight tracking-tight">Select a song</h1>
-            <p id="player-artist" class="text-primary text-lg font-medium">Neon Artist</p>
-        </div>
-    </div>
-
-    <div class="px-6 pb-12 space-y-8">
-        <div class="flex flex-col gap-3">
-            <input type="range" id="progress-slider" value="0" class="w-full h-1.5 bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
-            <div class="flex justify-between text-xs text-slate-400">
-                <p id="current-time">0:00</p><p id="total-duration">0:00</p>
-            </div>
-        </div>
-        <div class="flex items-center justify-between px-2">
-            <button class="text-slate-400"><span class="material-symbols-outlined text-2xl">shuffle</span></button>
-            <div class="flex items-center gap-6">
-                <button onclick="prevTrack()" class="text-white"><span class="material-symbols-outlined text-4xl">skip_previous</span></button>
-                <button onclick="togglePlay()" id="master-play-btn" class="size-20 flex items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 active:scale-95 transition-transform">
-                    <span id="master-play-icon" class="material-symbols-outlined text-5xl">play_arrow</span>
-                </button>
-                <button onclick="nextTrack()" class="text-white"><span class="material-symbols-outlined text-4xl">skip_next</span></button>
-            </div>
-            <button class="text-primary"><span class="material-symbols-outlined text-2xl">repeat</span></button>
-        </div>
-    </div>
-</div>
-
-<div id="library-screen" class="relative flex h-screen w-full flex-col overflow-hidden custom-gradient max-w-[430px] mx-auto shadow-2xl">
-    <header class="sticky top-0 z-50 flex items-center bg-background-dark/80 ios-blur p-4 pb-2 justify-between">
-        <div class="text-white flex size-12 items-center justify-start"><span class="material-symbols-outlined">menu</span></div>
-        <h2 class="text-white text-lg font-bold flex-1 text-center">My Library</h2>
-        <button onclick="openModal()" class="flex w-12 items-center justify-end text-primary hover:scale-110 transition-transform">
-            <span class="material-symbols-outlined text-3xl">add_circle</span>
-        </button>
-    </header>
-
-    <div class="flex-1 overflow-y-auto pb-44">
-        <div class="flex p-6 flex-col gap-6 items-center">
-            <div class="bg-center bg-cover rounded-xl shadow-2xl w-56 h-56" style='background-image: url("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500");'></div>
             <div class="text-center">
-                <h1 class="text-white text-3xl font-bold">Midnight Vibes</h1>
-                <p id="track-count" class="text-[#9292c9] text-base">0 songs</p>
+                <h2 class="text-xs uppercase tracking-[0.2em] font-bold text-slate-400">Now Playing</h2>
             </div>
-            <button onclick="playSong(0)" class="w-full flex items-center justify-center gap-2 rounded-full h-12 bg-primary text-white font-bold shadow-lg shadow-primary/20">
-                <span class="material-symbols-outlined">play_arrow</span>Play All
-            </button>
+            <div class="flex size-10 items-center justify-end"><span class="material-symbols-outlined text-2xl">more_vert</span></div>
         </div>
-        <div class="px-6 py-2 border-b border-white/5"><p class="text-white/50 text-xs font-bold uppercase tracking-widest">Your Tracks</p></div>
-        <div id="track-list-container" class="flex flex-col"></div>
-    </div>
 
-    <footer class="absolute bottom-0 w-full bg-background-dark/95 ios-blur border-t border-white/5 pt-2 pb-6 px-4">
-        <div onclick="showScreen('player-screen')" class="flex items-center justify-between mb-4 cursor-pointer">
-            <div class="flex items-center gap-3">
-                <div id="mini-album-art" class="size-10 rounded-full bg-center bg-cover border border-white/10"></div>
-                <div>
-                    <p id="mini-track-title" class="text-white text-sm font-bold line-clamp-1">Select a song</p>
-                    <p id="mini-track-artist" class="text-primary text-[10px] font-medium">Neon Music</p>
+        <div class="flex-1 flex flex-col items-center justify-center px-8 gap-8">
+            <div id="album-ring" class="relative group">
+                <div class="absolute inset-0 rounded-full bg-primary/20 blur-3xl"></div>
+                <div class="relative size-64 sm:size-72 rounded-full border-4 border-slate-200 dark:border-white/10 p-2 neon-glow overflow-hidden transition-all duration-500">
+                    <div id="player-art" class="w-full h-full rounded-full bg-center bg-cover bg-no-repeat"></div>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="event.stopPropagation(); togglePlay();" class="text-white"><span id="mini-play-icon" class="material-symbols-outlined">play_arrow</span></button>
-                <button onclick="event.stopPropagation(); nextTrack();" class="text-white"><span class="material-symbols-outlined">skip_next</span></button>
+            <div class="text-center space-y-2">
+                <h1 id="player-title" class="text-2xl sm:text-3xl font-bold leading-tight tracking-tight px-4">Select a song</h1>
+                <p id="player-artist" class="text-primary text-lg font-medium">Neon Artist</p>
             </div>
         </div>
-        <div class="w-full bg-white/10 h-1 rounded-full overflow-hidden mb-4">
-            <div id="mini-progress-bar" class="bg-primary h-full w-0"></div>
+
+        <div class="px-6 pb-12 space-y-6">
+            <div class="flex items-center gap-3 px-2">
+                <span class="material-symbols-outlined text-slate-400 text-lg">volume_down</span>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" class="flex-1 h-1 bg-slate-200 dark:bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
+                <span class="material-symbols-outlined text-slate-400 text-lg">volume_up</span>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <input type="range" id="progress-slider" value="0" class="w-full h-1.5 bg-slate-200 dark:bg-white/10 accent-primary rounded-full appearance-none cursor-pointer">
+                <div class="flex justify-between text-xs text-slate-400">
+                    <p id="current-time">0:00</p><p id="total-duration">0:00</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between px-2">
+                <button class="text-slate-400"><span class="material-symbols-outlined text-2xl">shuffle</span></button>
+                <div class="flex items-center gap-6">
+                    <button onclick="prevTrack()" class="dark:text-white"><span class="material-symbols-outlined text-4xl">skip_previous</span></button>
+                    <button onclick="togglePlay()" id="master-play-btn" class="size-16 sm:size-20 flex items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 active:scale-95 transition-transform">
+                        <span id="master-play-icon" class="material-symbols-outlined text-5xl">play_arrow</span>
+                    </button>
+                    <button onclick="nextTrack()" class="dark:text-white"><span class="material-symbols-outlined text-4xl">skip_next</span></button>
+                </div>
+                <button class="text-primary"><span class="material-symbols-outlined text-2xl">repeat</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="library-screen" class="flex flex-1 flex-col overflow-hidden custom-gradient dark:custom-gradient bg-white dark:bg-background-dark">
+        <header class="sticky top-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 ios-blur p-4 justify-between">
+            <div class="flex size-12 items-center justify-start"><span class="material-symbols-outlined">menu</span></div>
+            <h2 class="text-lg font-bold flex-1 text-center">My Library</h2>
+            <button onclick="openModal()" class="flex w-12 items-center justify-end text-primary hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-3xl">add_circle</span>
+            </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto pb-44">
+            <div id="home-content" class="flex p-6 flex-col gap-6 items-center">
+                <div class="bg-center bg-cover rounded-xl shadow-2xl w-48 h-48 sm:w-56 sm:h-56 transition-all" style='background-image: url("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500");'></div>
+                <div class="text-center">
+                    <h1 class="text-2xl sm:text-3xl font-bold">Midnight Vibes</h1>
+                    <p id="track-count" class="text-slate-500 dark:text-[#9292c9] text-base">0 songs</p>
+                </div>
+                <button onclick="playSong(0)" class="w-full max-w-xs flex items-center justify-center gap-2 rounded-full h-12 bg-primary text-white font-bold shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined">play_arrow</span>Play All
+                </button>
+            </div>
+
+            <div id="settings-content" class="hidden-screen p-6 space-y-6">
+                <h3 class="text-xl font-bold border-b border-slate-200 dark:border-white/10 pb-2">Settings</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-4 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">dark_mode</span>
+                            <span>Dark Mode</span>
+                        </div>
+                        <button onclick="toggleDarkMode()" class="w-12 h-6 bg-primary rounded-full relative transition-all">
+                            <div id="dark-mode-dot" class="absolute top-1 left-1 size-4 bg-white rounded-full transition-all translate-x-6"></div>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-100 dark:bg-white/5 p-4 rounded-xl cursor-pointer" onclick="resetApp()">
+                        <div class="flex items-center gap-3 text-red-500">
+                            <span class="material-symbols-outlined">delete_sweep</span>
+                            <span>Clear All Data</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tracks-header" class="px-6 py-2 border-b border-slate-200 dark:border-white/5"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Your Tracks</p></div>
+            <div id="track-list-container" class="flex flex-col"></div>
         </div>
 
-        <div class="flex justify-around items-center pt-2 border-t border-white/5">
-            <button class="flex flex-col items-center gap-1 text-[#9292c9]"><span class="material-symbols-outlined">home</span><span class="text-[10px]">Home</span></button>
-            <button class="flex flex-col items-center gap-1 text-primary"><span class="material-symbols-outlined fill-1">library_music</span><span class="text-[10px]">Library</span></button>
-            <button class="flex flex-col items-center gap-1 text-[#9292c9]"><span class="material-symbols-outlined">explore</span><span class="text-[10px]">Discover</span></button>
-            <button class="flex flex-col items-center gap-1 text-[#9292c9]"><span class="material-symbols-outlined">settings</span><span class="text-[10px]">Settings</span></button>
-        </div>
-    </footer>
+        <footer class="absolute bottom-0 w-full bg-white/95 dark:bg-background-dark/95 ios-blur border-t border-slate-200 dark:border-white/5 pt-2 pb-6 px-4 z-40">
+            <div onclick="showScreen('player-screen')" class="flex items-center justify-between mb-4 cursor-pointer group">
+                <div class="flex items-center gap-3">
+                    <div id="mini-album-art" class="size-10 rounded-full bg-center bg-cover border border-slate-200 dark:border-white/10"></div>
+                    <div class="max-w-[150px]">
+                        <p id="mini-track-title" class="text-sm font-bold line-clamp-1">Select a song</p>
+                        <p id="mini-track-artist" class="text-primary text-[10px] font-medium">Neon Music</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="event.stopPropagation(); togglePlay();" class="p-2 active:scale-90 transition-transform"><span id="mini-play-icon" class="material-symbols-outlined">play_arrow</span></button>
+                    <button onclick="event.stopPropagation(); nextTrack();" class="p-2"><span class="material-symbols-outlined">skip_next</span></button>
+                </div>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-white/10 h-1 rounded-full overflow-hidden mb-4">
+                <div id="mini-progress-bar" class="bg-primary h-full w-0"></div>
+            </div>
+
+            <div class="flex justify-around items-center pt-2 border-t border-slate-200 dark:border-white/5">
+                <button onclick="showLibraryTab('home')" id="home-btn" class="flex flex-col items-center gap-1 text-primary"><span class="material-symbols-outlined">home</span><span class="text-[10px]">Home</span></button>
+                <button onclick="showLibraryTab('home')" class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">library_music</span><span class="text-[10px]">Library</span></button>
+                <button class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">explore</span><span class="text-[10px]">Discover</span></button>
+                <button onclick="showLibraryTab('settings')" id="settings-btn" class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">settings</span><span class="text-[10px]">Settings</span></button>
+            </div>
+        </footer>
+    </div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'NEON_MUSIC_PLAYLIST';
+    const STORAGE_KEY = 'NEON_MUSIC_PRO_DATA';
     const defaultPlaylist = [
         { title: "Midnight Protocol", artist: "Neon Architect", duration: "3:45", img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=500", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
         { title: "Starlight Echo", artist: "Muse Digital", duration: "3:22", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500", path: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
@@ -159,32 +195,77 @@
     let isPlaying = false;
     const audio = document.getElementById('main-audio');
 
+    // UI ELEMENTS
+    const htmlRoot = document.getElementById('html-root');
+    const darkModeDot = document.getElementById('dark-mode-dot');
+
     function saveToStorage() { localStorage.setItem(STORAGE_KEY, JSON.stringify(playlist)); }
+
+    // THEME TOGGLE
+    function toggleDarkMode() {
+        htmlRoot.classList.toggle('dark');
+        const isDark = htmlRoot.classList.contains('dark');
+        darkModeDot.style.transform = isDark ? 'translateX(1.5rem)' : 'translateX(0)';
+    }
+
+    // TAB NAVIGATION
+    function showLibraryTab(tab) {
+        const homeContent = document.getElementById('home-content');
+        const settingsContent = document.getElementById('settings-content');
+        const tracksHeader = document.getElementById('tracks-header');
+        const trackList = document.getElementById('track-list-container');
+        
+        const homeBtn = document.getElementById('home-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+
+        if(tab === 'settings') {
+            homeContent.classList.add('hidden-screen');
+            tracksHeader.classList.add('hidden-screen');
+            trackList.classList.add('hidden-screen');
+            settingsContent.classList.remove('hidden-screen');
+            settingsBtn.classList.replace('text-slate-400', 'text-primary');
+            homeBtn.classList.replace('text-primary', 'text-slate-400');
+        } else {
+            homeContent.classList.remove('hidden-screen');
+            tracksHeader.classList.remove('hidden-screen');
+            trackList.classList.remove('hidden-screen');
+            settingsContent.classList.add('hidden-screen');
+            homeBtn.classList.replace('text-slate-400', 'text-primary');
+            settingsBtn.classList.replace('text-primary', 'text-slate-400');
+        }
+    }
+
+    function resetApp() {
+        if(confirm("Are you sure? All songs will be deleted!")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // MODAL
     function openModal() { document.getElementById('add-song-modal').classList.remove('hidden-screen'); }
     function closeModal() { document.getElementById('add-song-modal').classList.add('hidden-screen'); }
 
     function addNewSong() {
         const title = document.getElementById('new-title').value;
         const artist = document.getElementById('new-artist').value;
-        const img = document.getElementById('new-img').value || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500";
+        const img = document.getElementById('new-img').value || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500";
         const path = document.getElementById('new-path').value;
 
         if(title && artist && path) {
-            playlist.push({ title, artist, duration: "--:--", img, path });
+            playlist.push({ title, artist, duration: "0:00", img, path });
             saveToStorage();
             initLibrary();
             closeModal();
-            document.getElementById('new-title').value = '';
-            document.getElementById('new-artist').value = '';
-            document.getElementById('new-path').value = '';
-        } else { alert("Please fill Title, Artist and MP3 URL"); }
+            // Clear inputs
+            ['new-title', 'new-artist', 'new-img', 'new-path'].forEach(id => document.getElementById(id).value = '');
+        } else { alert("Please fill Song Title, Artist and MP3 URL"); }
     }
 
     function deleteSong(index) {
         if(confirm("Delete this song?")) {
             playlist.splice(index, 1);
             saveToStorage();
-            if(currentTrackIndex === index) { audio.pause(); isPlaying = false; }
             initLibrary();
         }
     }
@@ -193,23 +274,23 @@
         const container = document.getElementById('track-list-container');
         document.getElementById('track-count').innerText = `${playlist.length} songs`;
         container.innerHTML = playlist.map((song, index) => `
-            <div onclick="playSong(${index})" class="flex items-center gap-4 px-6 min-h-[80px] py-2 justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-                <div class="flex items-center gap-4">
-                    <div class="relative bg-center bg-cover rounded-lg size-14 shadow-md" style='background-image: url("${song.img}");'>
+            <div onclick="playSong(${index})" class="flex items-center gap-4 px-6 min-h-[80px] py-2 justify-between hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                <div class="flex items-center gap-4 overflow-hidden">
+                    <div class="relative bg-center bg-cover rounded-lg size-14 shrink-0 shadow-md" style='background-image: url("${song.img}");'>
                         <div class="absolute inset-0 bg-primary/40 flex items-center justify-center rounded-lg ${currentTrackIndex === index && isPlaying ? 'flex' : 'hidden'}">
                             <span class="material-symbols-outlined text-white">volume_up</span>
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <p class="text-base font-semibold ${currentTrackIndex === index ? 'text-primary' : 'text-white'}">${song.title}</p>
-                        <p class="text-[#9292c9] text-sm">${song.artist}</p>
+                    <div class="flex flex-col overflow-hidden">
+                        <p class="text-base font-semibold truncate ${currentTrackIndex === index ? 'text-primary' : ''}">${song.title}</p>
+                        <p class="text-slate-500 dark:text-[#9292c9] text-sm truncate">${song.artist}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                     <button onclick="event.stopPropagation(); deleteSong(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity p-2">
-                        <span class="material-symbols-outlined">delete</span>
+                        <span class="material-symbols-outlined text-xl">delete</span>
                     </button>
-                    <p class="text-[#9292c9] text-sm">${song.duration}</p>
+                    <p class="text-slate-400 text-sm font-medium">${song.duration}</p>
                 </div>
             </div>
         `).join('');
@@ -242,8 +323,9 @@
         const mIcon = document.getElementById('master-play-icon');
         const miniIcon = document.getElementById('mini-play-icon');
         const ring = document.getElementById('album-ring');
+        
         if (forcePlay || audio.paused) {
-            audio.play().catch(() => alert("Audio file link not valid or broken!")); 
+            audio.play().catch(() => console.log("Waiting for user interaction")); 
             isPlaying = true;
             mIcon.innerText = 'pause'; miniIcon.innerText = 'pause';
             ring.classList.add('rotating');
@@ -260,29 +342,34 @@
 
     function showScreen(screenId) {
         document.getElementById('player-screen').classList.toggle('hidden-screen', screenId !== 'player-screen');
-        document.getElementById('library-screen').classList.toggle('hidden-screen', screenId !== 'library-screen');
     }
+
+    // VOLUME & PROGRESS
+    document.getElementById('volume-slider').oninput = (e) => audio.volume = e.target.value;
+    document.getElementById('progress-slider').oninput = (e) => audio.currentTime = (e.target.value / 100) * audio.duration;
 
     audio.ontimeupdate = () => {
         const p = (audio.currentTime / audio.duration) * 100 || 0;
         document.getElementById('mini-progress-bar').style.width = `${p}%`;
         document.getElementById('progress-slider').value = p;
+        
         let cm = Math.floor(audio.currentTime / 60), cs = Math.floor(audio.currentTime % 60);
         document.getElementById("current-time").innerText = `${cm}:${cs < 10 ? '0'+cs : cs}`;
     };
 
     audio.onloadedmetadata = () => {
         let dm = Math.floor(audio.duration / 60), ds = Math.floor(audio.duration % 60);
-        document.getElementById("total-duration").innerText = `${dm}:${ds < 10 ? '0'+ds : ds}`;
+        const durationText = `${dm}:${ds < 10 ? '0'+ds : ds}`;
+        document.getElementById("total-duration").innerText = durationText;
+        playlist[currentTrackIndex].duration = durationText; // Update duration in list
     };
 
-    document.getElementById('progress-slider').oninput = (e) => audio.currentTime = (e.target.value / 100) * audio.duration;
     audio.onended = nextTrack;
 
-    // Load initial
+    // INIT
     initLibrary();
     if(playlist.length > 0) updateUI(playlist[0]);
-    showScreen('library-screen');
+    audio.volume = 0.7;
 </script>
 </body>
 </html>
